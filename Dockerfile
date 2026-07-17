@@ -1,4 +1,4 @@
-FROM justarchi/archisteamfarm:latest
+FROM justarchi/archisteamfarm:stable
 
 USER root
 COPY start-railway.sh /usr/local/bin/start-railway.sh

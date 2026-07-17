@@ -10,7 +10,6 @@ if [ -z "${ASF_IPC_PASSWORD:-}" ]; then
 fi
 
 json_escape() {
-  # Escape backslash, double quote, carriage return and newline for JSON.
   printf '%s' "$1" | sed \
     -e 's/\\/\\\\/g' \
     -e 's/"/\\"/g' \
@@ -36,7 +35,7 @@ if [ ! -f "$CONFIG_DIR/IPC.config" ] || [ "${REGENERATE_CONFIG:-false}" = "true"
   "Kestrel": {
     "Endpoints": {
       "HTTP": {
-        "Url": "http://0.0.0.0:1242"
+        "Url": "http://*:1242"
       }
     }
   }
@@ -52,10 +51,8 @@ make_bot() {
 
   [ -n "$BOT_LOGIN" ] || return 0
 
-  BOT_NAME_ESCAPED="$(json_escape "$BOT_NAME")"
   BOT_LOGIN_ESCAPED="$(json_escape "$BOT_LOGIN")"
   BOT_PASSWORD_ESCAPED="$(json_escape "$BOT_PASSWORD")"
-
   BOT_FILE="$CONFIG_DIR/${BOT_NAME}.json"
 
   if [ ! -f "$BOT_FILE" ] || [ "${REGENERATE_CONFIG:-false}" = "true" ]; then
@@ -77,13 +74,5 @@ make_bot "${BOT2_NAME:-Account2}" "${BOT2_LOGIN:-}" "${BOT2_PASSWORD:-}" "${BOT2
 
 chown -R 1000:1000 "$CONFIG_DIR" 2>/dev/null || true
 
-cd /app
-
-if [ -x /app/ArchiSteamFarm ]; then
-  exec /app/ArchiSteamFarm
-elif [ -f /app/ArchiSteamFarm.dll ]; then
-  exec dotnet /app/ArchiSteamFarm.dll
-else
-  echo "ERROR: ASF executable was not found."
-  exit 1
-fi
+echo "Starting ArchiSteamFarm..."
+exec ArchiSteamFarm --no-restart
