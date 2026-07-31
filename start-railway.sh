@@ -134,7 +134,7 @@ EOF
 }
 
 make_bot \
-  "${BOT1_NAME:-main}" \
+  "${BOT1_NAME:-Account1}" \
   "${BOT1_LOGIN:-}" \
   "${BOT1_PASSWORD:-}" \
   "${BOT1_ENABLED:-true}"
@@ -146,6 +146,22 @@ make_bot \
   "${BOT2_ENABLED:-true}"
 
 chown -R 1000:1000 "$CONFIG_DIR" 2>/dev/null || true
+
+echo "[PAM CONFIG] Enabled=${PAM_ENABLED_JSON}"
+echo "[PAM CONFIG] DryRun=${PAM_DRY_RUN_JSON}"
+echo "[PAM CONFIG] RandomPlay=${PAM_RANDOM_PLAY_JSON}"
+echo "[PAM CONFIG] FriendRequests=${PAM_FRIEND_REQUESTS_JSON}"
+
+for config_file in "$CONFIG_DIR"/*.json; do
+  [ -f "$config_file" ] || continue
+
+  if grep -q '"PersonalAccountManager"' "$config_file"; then
+    echo "[PAM CONFIG] Plugin configuration written to: $config_file"
+    grep -n \
+      '"PersonalAccountManager"\|"DryRun"\|"RandomPlay"\|"FriendRequests"' \
+      "$config_file" || true
+  fi
+done
 
 echo "Starting ArchiSteamFarm..."
 exec ArchiSteamFarm --no-restart
